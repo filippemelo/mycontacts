@@ -1,17 +1,20 @@
 # MyContacts
 
 Projeto de estudo com:
+
 - Backend: Node.js + Express
 - Frontend: React (CRA)
 
 ## Como rodar
 
 ### Backend
+
 cd api
-npm install
-npm run dev
+yarn install
+yarn dev
 
 ### Frontend
+
 cd web
-npm install
-npm start
+yarn install
+yarn start

@@ -100,7 +100,7 @@ export const Card = styled.div`
             }
         }
 
-        spam {
+        span {
             display: block;
             font-size: 14px;
             color: ${({ theme }) => theme.colors.gray[200]};

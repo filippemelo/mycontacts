@@ -6,7 +6,7 @@ import {
     Container,
     Header,
     InputSearchContainer,
-    ListerContainer,
+    ListHeader,
 } from "./styles";
 
 import arrow from "../../assets/images/icons/arrow.svg";
@@ -15,9 +15,10 @@ import trash from "../../assets/images/icons/trash.svg";
 
 export default function Home() {
     const [contacts, setContacts] = useState([]);
+    const [orderBy, setOrderBy] = useState("asc");
 
     useEffect(() => {
-        fetch("http://localhost:3001/contacts")
+        fetch(`http://localhost:3001/contacts?orderBy=${orderBy}`)
             .then(async (response) => {
                 const json = await response.json();
                 setContacts(json);
@@ -25,13 +26,18 @@ export default function Home() {
             .catch((error) => {
                 console.log("error", error);
             });
-    }, []);
+    }, [orderBy]);
+
+    function handleToggleOrderBy() {
+        setOrderBy((prevState) => (prevState === "asc" ? "desc" : "asc"));
+    }
 
     return (
         <Container>
             <InputSearchContainer>
                 <input type="text" placeholder="Pesquise pelo nome ..." />
             </InputSearchContainer>
+
             <Header>
                 <strong>
                     {contacts.length}
@@ -39,14 +45,18 @@ export default function Home() {
                 </strong>
                 <Link to="/new">Novo Contato</Link>
             </Header>
-            <ListerContainer>
-                <header>
-                    <button type="button" className="sort-button">
-                        <span>Nome</span>
-                        <img src={arrow} alt="Arrow" />
-                    </button>
-                </header>
-            </ListerContainer>
+
+            <ListHeader $orderBy={orderBy}>
+                <button
+                    type="button"
+                    onClick={handleToggleOrderBy}
+                    className="sort-button"
+                >
+                    <span>Nome</span>
+                    <img src={arrow} alt="Arrow" />
+                </button>
+            </ListHeader>
+
             {contacts.map((contact) => (
                 <Card key={contact.id}>
                     <div className="info">

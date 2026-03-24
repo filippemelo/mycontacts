@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import {
@@ -16,6 +16,15 @@ import trash from "../../assets/images/icons/trash.svg";
 export default function Home() {
     const [contacts, setContacts] = useState([]);
     const [orderBy, setOrderBy] = useState("asc");
+    const [searchTerm, setSearchTerm] = useState("");
+
+    const filteredContacts = useMemo(() => {
+        return contacts.filter(
+            (contact) =>
+                contact.name.toLowerCase().includes(searchTerm.toLowerCase()),
+            //(contact) => contact.name.toLowerCase().startsWith(searchTerm.toLowerCase()),
+        );
+    }, [contacts, searchTerm]);
 
     useEffect(() => {
         fetch(`http://localhost:3001/contacts?orderBy=${orderBy}`)
@@ -32,32 +41,43 @@ export default function Home() {
         setOrderBy((prevState) => (prevState === "asc" ? "desc" : "asc"));
     }
 
+    function handleChangeSearchTerm(event) {
+        setSearchTerm(event.target.value);
+    }
+
     return (
         <Container>
             <InputSearchContainer>
-                <input type="text" placeholder="Pesquise pelo nome ..." />
+                <input
+                    type="text"
+                    values={searchTerm}
+                    placeholder="Pesquise pelo nome ..."
+                    onChange={handleChangeSearchTerm}
+                />
             </InputSearchContainer>
 
             <Header>
                 <strong>
-                    {contacts.length}
-                    {contacts.length === 1 ? " contato" : " contatos"}
+                    {filteredContacts.length}
+                    {filteredContacts.length === 1 ? " contato" : " contatos"}
                 </strong>
                 <Link to="/new">Novo Contato</Link>
             </Header>
 
-            <ListHeader $orderBy={orderBy}>
-                <button
-                    type="button"
-                    onClick={handleToggleOrderBy}
-                    className="sort-button"
-                >
-                    <span>Nome</span>
-                    <img src={arrow} alt="Arrow" />
-                </button>
-            </ListHeader>
+            {filteredContacts.length > 0 && (
+                <ListHeader $orderBy={orderBy}>
+                    <button
+                        type="button"
+                        onClick={handleToggleOrderBy}
+                        className="sort-button"
+                    >
+                        <span>Nome</span>
+                        <img src={arrow} alt="Arrow" />
+                    </button>
+                </ListHeader>
+            )}
 
-            {contacts.map((contact) => (
+            {filteredContacts.map((contact) => (
                 <Card key={contact.id}>
                     <div className="info">
                         <div className="contact-name">

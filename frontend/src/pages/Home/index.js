@@ -31,21 +31,26 @@ export default function Home() {
     }, [contacts, searchTerm]);
 
     useEffect(() => {
-        setIsLoadung(true);
+        async function loadContent() {
+            try {
+                setIsLoadung(true);
 
-        fetch(`http://localhost:3001/contacts?orderBy=${orderBy}`)
-            .then(async (response) => {
+                const response = await fetch(
+                    `http://localhost:3001/contacts?orderBy=${orderBy}`,
+                );
+
                 await delay(500);
 
                 const json = await response.json();
                 setContacts(json);
-            })
-            .catch((error) => {
+            } catch (error) {
                 console.log("error", error);
-            })
-            .finally(() => {
+            } finally {
                 setIsLoadung(false);
-            });
+            }
+        }
+
+        loadContent();
     }, [orderBy]);
 
     function handleToggleOrderBy() {

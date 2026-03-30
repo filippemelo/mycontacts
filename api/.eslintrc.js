@@ -14,6 +14,7 @@ module.exports = {
     "consistent-return": "off",
     quotes: "off",
     camelcase: "off",
+    "object-curly-newline": "off",
     "no-unused-vars": ["error", { argsIgnorePattern: "next" }],
   },
 };

@@ -16,7 +16,7 @@ class ContactController {
     const contact = await ContactsRepository.findById(id);
 
     if (!contact) {
-      return response.status(404).json({ error: "User not found" });
+      return response.status(404).json({ error: "Contact not found" });
     }
 
     response.json(contact);
@@ -24,16 +24,13 @@ class ContactController {
 
   async store(request, response) {
     // Criar um registro
-    const {
-      name, email, phone, category_id,
-    } = request.body;
+    const { name, email, phone, category_id } = request.body;
 
     if (!name) {
       return response.status(400).json({ error: "Name is required" });
     }
 
     const contactExists = await ContactsRepository.findByEmail(email);
-
     if (contactExists) {
       return response
         .status(400)
@@ -47,15 +44,13 @@ class ContactController {
       category_id,
     });
 
-    response.json(contact);
+    response.status(201).json(contact);
   }
 
   async update(request, response) {
     // Editar um registro
     const { id } = request.params;
-    const {
-      name, email, phone, category_id,
-    } = request.body;
+    const { name, email, phone, category_id } = request.body;
 
     const contactExists = await ContactsRepository.findById(id);
     if (!contactExists) {
@@ -88,11 +83,11 @@ class ContactController {
     // deletar um registro
     const { id } = request.params;
 
-    // const contact = await ContactsRepository.findById(id);
+    const contact = await ContactsRepository.findById(id);
 
-    // if (!contact) {
-    //   return response.status(404).json({ error: 'User not found' });
-    // }
+    if (!contact) {
+      return response.status(404).json({ error: "User not found" });
+    }
 
     await ContactsRepository.delete(id);
 

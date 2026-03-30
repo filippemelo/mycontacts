@@ -1,15 +1,18 @@
-import delay from "../utils/delay";
+import HttpClient from "./utils/HttpClient";
 
 class ContactsService {
+    constructor() {
+        this.httpCliente = new HttpClient("http://localhost:3001");
+    }
+
     async listContacts(orderBy = "asc") {
-        const response = await fetch(
-            `http://localhost:3001/contacts?orderBy=${orderBy}`,
-        );
+        return this.httpCliente.get(`/contacts?orderBy=${orderBy}`);
+    }
 
-        await delay(500);
-
-        return response.json();
+    async createContact(contact) {
+        return this.httpCliente.get(`/contacts`, contact);
     }
 }
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default new ContactsService();

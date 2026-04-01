@@ -1,19 +1,23 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import {
     Card,
     Container,
+    EmptyListContainer,
     ErrorContainer,
     Header,
     InputSearchContainer,
     ListHeader,
+    SearchNotFoundContainer,
 } from "./styles";
 
+import emptyBox from "../../assets/images/empty-box.svg";
 import arrow from "../../assets/images/icons/arrow.svg";
 import edit from "../../assets/images/icons/edit.svg";
 import sad from "../../assets/images/icons/sad.svg";
 import trash from "../../assets/images/icons/trash.svg";
+import magnifierQuestion from "../../assets/images/magnifier-question.svg";
 
 import Button from "../../components/Button";
 import Loader from "../../components/Loader";
@@ -34,24 +38,24 @@ export default function Home() {
         );
     }, [contacts, searchTerm]);
 
-    useEffect(() => {
-        async function loadContent() {
-            try {
-                setIsLoadung(true);
+    const loadContents = useCallback(async () => {
+        try {
+            setIsLoadung(true);
 
-                const contactsList =
-                    await ContactsService.listContacts(orderBy);
+            const contactsList = await ContactsService.listContacts(orderBy);
 
-                setContacts(contactsList);
-            } catch {
-                setHasError(true);
-            } finally {
-                setIsLoadung(false);
-            }
+            setHasError(false);
+            setContacts(contactsList);
+        } catch {
+            setHasError(true);
+        } finally {
+            setIsLoadung(false);
         }
-
-        loadContent();
     }, [orderBy]);
+
+    useEffect(() => {
+        loadContents();
+    }, [loadContents]);
 
     function handleToggleOrderBy() {
         setOrderBy((prevState) => (prevState === "asc" ? "desc" : "asc"));
@@ -61,21 +65,35 @@ export default function Home() {
         setSearchTerm(event.target.value);
     }
 
+    function handleTryAgain() {
+        loadContents();
+    }
+
     return (
         <Container>
             <Loader isLoading={isLoading} />
 
-            <InputSearchContainer>
-                <input
-                    type="text"
-                    values={searchTerm}
-                    placeholder="Pesquise pelo nome ..."
-                    onChange={handleChangeSearchTerm}
-                />
-            </InputSearchContainer>
+            {contacts.length > 0 && (
+                <InputSearchContainer>
+                    <input
+                        type="text"
+                        values={searchTerm}
+                        placeholder="Pesquise pelo nome ..."
+                        onChange={handleChangeSearchTerm}
+                    />
+                </InputSearchContainer>
+            )}
 
-            <Header hasError={hasError}>
-                {!hasError && (
+            <Header
+                justifyContent={
+                    hasError
+                        ? "flex-end"
+                        : contacts.length > 0
+                          ? "space-between"
+                          : "center"
+                }
+            >
+                {Boolean(!hasError && contacts.length > 0) && (
                     <strong>
                         {filteredContacts.length}
                         {filteredContacts.length === 1
@@ -94,47 +112,77 @@ export default function Home() {
                         <strong>
                             Ocorreu um erro ao obter os seus contatos!
                         </strong>
+                        <Button type="button" onClick={handleTryAgain}>
+                            Tentar Novamente
+                        </Button>
                     </div>
-                    <Button type="button">Tentar Novamente</Button>
                 </ErrorContainer>
             )}
 
-            {filteredContacts.length > 0 && (
-                <ListHeader $orderBy={orderBy}>
-                    <button
-                        type="button"
-                        onClick={handleToggleOrderBy}
-                        className="sort-button"
-                    >
-                        <span>Nome</span>
-                        <img src={arrow} alt="Arrow" />
-                    </button>
-                </ListHeader>
+            {!hasError && (
+                <>
+                    {contacts.length < 1 && !isLoading && (
+                        <EmptyListContainer>
+                            <img src={emptyBox} alt="Empty Box" />
+                            <p>
+                                Você ainda não tem nenhum contato cadastrado!
+                                Clique no botão <strong>”Novo contato”</strong>{" "}
+                                à cima para cadastrar o seu primeiro!
+                            </p>
+                        </EmptyListContainer>
+                    )}
+
+                    {Boolean(contacts.length > 0 && filteredContacts < 1) && (
+                        <SearchNotFoundContainer>
+                            <img
+                                src={magnifierQuestion}
+                                alt="Magnifier Question"
+                            />
+                            <span>
+                                Nenhum resultado foi encontrado para{" "}
+                                <strong>"{searchTerm}"</strong>.
+                            </span>
+                        </SearchNotFoundContainer>
+                    )}
+
+                    {filteredContacts.length > 0 && (
+                        <ListHeader $orderBy={orderBy}>
+                            <button
+                                type="button"
+                                onClick={handleToggleOrderBy}
+                                className="sort-button"
+                            >
+                                <span>Nome</span>
+                                <img src={arrow} alt="Arrow" />
+                            </button>
+                        </ListHeader>
+                    )}
+
+                    {filteredContacts.map((contact) => (
+                        <Card key={contact.id}>
+                            <div className="info">
+                                <div className="contact-name">
+                                    <strong>{contact.name}</strong>
+                                    {contact.category_name && (
+                                        <small>{contact.category_name}</small>
+                                    )}
+                                </div>
+                                <span>{contact.email}</span>
+                                <span>{contact.phone}</span>
+                            </div>
+
+                            <div className="actions">
+                                <Link to={`/edit/${contact.id}`}>
+                                    <img src={edit} alt="Edit" />
+                                </Link>
+                                <button>
+                                    <img src={trash} alt="Delete" />
+                                </button>
+                            </div>
+                        </Card>
+                    ))}
+                </>
             )}
-
-            {filteredContacts.map((contact) => (
-                <Card key={contact.id}>
-                    <div className="info">
-                        <div className="contact-name">
-                            <strong>{contact.name}</strong>
-                            {contact.category_name && (
-                                <small>{contact.category_name}</small>
-                            )}
-                        </div>
-                        <span>{contact.email}</span>
-                        <span>{contact.phone}</span>
-                    </div>
-
-                    <div className="actions">
-                        <Link to={`/edit/${contact.id}`}>
-                            <img src={edit} alt="Edit" />
-                        </Link>
-                        <button>
-                            <img src={trash} alt="Delete" />
-                        </button>
-                    </div>
-                </Card>
-            ))}
         </Container>
     );
 }

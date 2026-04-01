@@ -15,6 +15,6 @@ export default function Loader({ isLoading }) {
     );
 }
 
-Loader.PropTypes = {
+Loader.propTypes = {
     isLoading: PropTypes.bool.isRequired,
 };

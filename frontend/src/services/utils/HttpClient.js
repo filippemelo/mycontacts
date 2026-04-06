@@ -32,7 +32,13 @@ class HttpClient {
         }
 
         if (options.headers) {
+            // Object.keys(options.headers).forEach((name) => {
+            //     headers.append({ name, value: options.headers[name] });
+            // });
 
+            Object.entries(options.headers).forEach(([name, value]) => {
+                headers.append(name, value);
+            });
         }
 
         const response = await fetch(`${this.baseURL}${path}`, {

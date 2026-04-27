@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 
 import useErrors from "../../hooks/useErrors";
 import CategoriesService from "../../services/CategoriesService";
@@ -13,7 +13,7 @@ import FormGroup from "../FormGroup";
 import Input from "../Input";
 import Select from "../Select";
 
-export default function ContactForm({ buttonLabel, onSubmit }) {
+const ContactForm = forwardRef(({ buttonLabel, onSubmit }, ref) => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
@@ -22,10 +22,23 @@ export default function ContactForm({ buttonLabel, onSubmit }) {
     const [isLoadingCategories, setIsLoadingCategories] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    //const refObject = ref;
+
     const { errors, setError, removeError, getErrorMessageByFieldName } =
         useErrors();
 
     const isFormValid = name && errors.length === 0;
+
+    useImperativeHandle(ref, () => {
+        return {
+            setFieldsValues: (contact) => {
+                setName(contact.name ?? "");
+                setEmail(contact.email ?? "");
+                setPhone(formatPhone(contact.phone ?? ""));
+                setCategoryId(contact.category_id ?? "");
+            },
+        };
+    }, []);
 
     useEffect(() => {
         async function loadCategories() {
@@ -79,6 +92,11 @@ export default function ContactForm({ buttonLabel, onSubmit }) {
         });
 
         setIsSubmitting(false);
+
+        setName("");
+        setEmail("");
+        setPhone("");
+        setCategoryId("");
     }
 
     return (
@@ -141,9 +159,11 @@ export default function ContactForm({ buttonLabel, onSubmit }) {
             </ButtonContainer>
         </Form>
     );
-}
+});
 
 ContactForm.propTypes = {
     buttonLabel: PropTypes.string.isRequired,
     onSubmit: PropTypes.func.isRequired,
 };
+
+export default ContactForm;

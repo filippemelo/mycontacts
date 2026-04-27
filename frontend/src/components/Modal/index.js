@@ -1,9 +1,9 @@
 import PropTypes from "prop-types";
-import ReactDom from "react-dom";
 
 import { Conatiner, Footer, Overlay } from "./styles";
 
 import Button from "../Button";
+import ReactPortal from "../ReactPortal";
 
 export default function Modal({
     danger,
@@ -19,34 +19,36 @@ export default function Modal({
     if (!visible) {
         return null;
     }
-    return ReactDom.createPortal(
-        <Overlay>
-            <Conatiner danger={danger}>
-                <h1>{title}</h1>
 
-                <div className="modal-body">{children}</div>
+    return (
+        <ReactPortal containerId="modal-root">
+            <Overlay>
+                <Conatiner danger={danger}>
+                    <h1>{title}</h1>
 
-                <Footer>
-                    <button
-                        type="button"
-                        className="cancel-button"
-                        onClick={onCancel}
-                        disabled={isLoading}
-                    >
-                        {cancelLabel}
-                    </button>
-                    <Button
-                        type="button"
-                        danger={danger}
-                        onClick={onConfirm}
-                        isLoading={isLoading}
-                    >
-                        {confirmLabel}
-                    </Button>
-                </Footer>
-            </Conatiner>
-        </Overlay>,
-        document.getElementById("modal-root"),
+                    <div className="modal-body">{children}</div>
+
+                    <Footer>
+                        <button
+                            type="button"
+                            className="cancel-button"
+                            onClick={onCancel}
+                            disabled={isLoading}
+                        >
+                            {cancelLabel}
+                        </button>
+                        <Button
+                            type="button"
+                            danger={danger}
+                            onClick={onConfirm}
+                            isLoading={isLoading}
+                        >
+                            {confirmLabel}
+                        </Button>
+                    </Footer>
+                </Conatiner>
+            </Overlay>
+        </ReactPortal>
     );
 }
 

@@ -1,4 +1,5 @@
 import { useRef } from "react";
+
 import ContactForm from "../../components/ContactForm";
 import PageHeader from "../../components/PageHeader";
 import ContactsService from "../../services/ContactsService";
@@ -23,9 +24,9 @@ export default function NewContact() {
             toast({
                 type: "success",
                 text: "Contato cadastrado com sucesso.",
-                duration: 3000,
+                duration: 5000,
             });
-        } catch (error) {
+        } catch {
             toast({
                 type: "danger",
                 text: "Ocorreu um erro ao cadstrar o contato.",
@@ -36,7 +37,11 @@ export default function NewContact() {
     return (
         <>
             <PageHeader title="Novo Contato" />
-            <ContactForm buttonLabel="Cadastrar" onSubmit={handleSubmit} />
+            <ContactForm
+                ref={contactFormRef}
+                buttonLabel="Cadastrar"
+                onSubmit={handleSubmit}
+            />
         </>
     );
 }

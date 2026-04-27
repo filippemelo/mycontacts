@@ -24,6 +24,10 @@ class ContactsService {
             body: contact,
         });
     }
+
+    deleteContact(id){
+        return this.httpCliente.delete(`/contacts/${id}`);
+    }
 }
 
 // eslint-disable-next-line import/no-anonymous-default-export
